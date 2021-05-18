@@ -8,12 +8,12 @@
 #include <vector>
 #include <cmath>
 #include <stdint.h>
-// #include "alice.h"
-#include "abcd.h"
+#include "alice.h"
+// #include "abcd.h"
 
 using namespace std;
 
-#define FILE_SIZE 1000000
+#define FILE_SIZE 100000 
 
 typedef struct WAV_HEADER
 {
@@ -56,6 +56,13 @@ void generatePlot(const std::string& fileName) {
   plot.close();
 }
 
+
+// T(ν) = (1 − δ) exp−ν2/σ2 + δ
+// void applyTransmissionEqn() {
+//   for (int x = 0; x < )
+
+// }
+
 /*
   isForwardFFT = 1 for FFT and -1 for Inverse FFT
 */
@@ -77,14 +84,6 @@ void FFT (vector<float>& data, unsigned long number_of_complex_samples, int isFo
       swap(data, j, i);
       //swap the complex part
       swap(data, j + 1, i + 1);
-      // checks if the changes occurs in the first half
-      // and use the mirrored effect on the second half
-      // if ((j / 2) < (n / 4)) {
-      //   //swap the real part
-      //   swap(data, n - (i + 2), n - (j + 2));
-      //   //swap the complex part
-      //   swap(data, (n - (i + 2)) + 1, (n - (j + 2)) + 1);
-      // }
     }
     m = n / 2;
     while (m >= 2 && j >= m) {
@@ -109,8 +108,8 @@ void FFT (vector<float>& data, unsigned long number_of_complex_samples, int isFo
     for (m = 1; m < mmax; m += 2) {
       for (i = m; i <= n; i += istep) {
           j = i + mmax;
-          tempr = wr * data[j - 1] - wi * data[j];
-          tempi = wr * data[j] + wi * data[j - 1];
+          tempr = wr * data[j - 1] + wi * data[j];
+          tempi = wr * data[j] - wi * data[j - 1];
           data[j - 1] = data[i - 1] - tempr;
           data[j] = data[i] - tempi;
           data[i - 1] += tempr;
@@ -178,42 +177,63 @@ int main() {
 
   generatePlot("fftSignal.dat");
 
+  // for (int x = 0; x < paddedData.size(); ++x) {
+  //   cout << paddedData.at(x) << ", ";
+  //   if (x % 2 != 0) {
+  //     cout << endl;
+  //   }
+  // }
+
   for (int x = 0; x < paddedData.size(); ++x) {
-    cout << paddedData.at(x) << ", ";
-    if (x % 2 != 0) {
-      cout << endl;
-    }
+    paddedData.at(x) = paddedData.at(x) > (.5 * std::pow(10, 6)) && paddedData.at(x) < (6 * std::pow(10, 6))  ? paddedData.at(x) : 0.0;
   }
+
+  generatePlot("modifiedFFT.dat");
 
   FFT(paddedData, i, -1);
 
   generatePlot("reverseFftSignal.dat");
 
   std::cout << "Took inverse of the data : \n";
-    for (int x = 0; x < paddedData.size(); ++x) {
-    cout << paddedData.at(x) << ", ";
-    if (x % 2 != 0) {
-      cout << endl;
-    }
-  }
+  // for (int x = 0; x < paddedData.size(); ++x) {
+  //   cout << paddedData.at(x) << ", ";
+  //   if (x % 2 != 0) {
+  //     cout << endl;
+  //   }
+  // }
 
   int16_t processedData[FILE_SIZE];
+  // Populating processedData
+  for (int x = 0; x < paddedData.size(); x += 2) {
+    processedData[x / 2] = static_cast<int16_t>(std::sqrt(
+      std::pow(paddedData.at(x), 2) +
+      std::pow(paddedData.at(x + 1), 2)
+    ));
+  }
+
+  std::cout << paddedData.size() << std::endl;
+
+  // for (int x = 0; x < paddedData.size() / 2; ++x) {
+  //   std::cout << x << " " << processedData[x] << std::endl;
+  // }
+
   // std::memcpy(processedData, rawData, FILE_SIZE);
   ////////////////////////////////////////////////////////////////////
   // DO YOUR PROCESSING HERE, ON "processedData"
   ////////////////////////////////////////////////////////////////////
 
   // CONVERTS "processedData" TO AN AUDIO FILE
-  // wav_hdr wav;
-  // wav.ChunkSize = fsize + sizeof(wav_hdr) - 8;
-  // wav.Subchunk2Size = fsize + sizeof(wav_hdr) - 44;
+  std::cout << "Generating audio file\n.";
+  wav_hdr wav;
+  wav.ChunkSize = fsize + sizeof(wav_hdr) - 8;
+  wav.Subchunk2Size = fsize + sizeof(wav_hdr) - 44;
 
   // FILE-NAME: "alice.wav", SAVE LOCATION: same as this cpp-file
-  // std::ofstream out("alice.wav", std::ios::binary);
-  // out.write(reinterpret_cast<const char *>(&wav), sizeof(wav));
-  // out.write(reinterpret_cast<char *>(processedData), fsize);
+  std::ofstream out("alice.wav", std::ios::binary);
+  out.write(reinterpret_cast<const char *>(&wav), sizeof(wav));
+  out.write(reinterpret_cast<char *>(processedData), fsize);
 
-  // out.close();
+  out.close();
 
   return 0;
 }
