@@ -7,8 +7,9 @@
 #include <cstring>
 #include <vector>
 #include <cmath>
-#include "alice.h"
-// #include "abcd.h"
+#include <stdint.h>
+// #include "alice.h"
+#include "abcd.h"
 
 using namespace std;
 
@@ -46,7 +47,19 @@ void swap (vector<float>& data, unsigned long first, unsigned long second) {
   data.at(second) = temp;
 }
 
-void FFT (vector<float>& data, unsigned long number_of_complex_samples, int isign) {
+// Generate dat file for gnu plot
+void generatePlot(const std::string& fileName) {
+  std::ofstream plot { fileName };
+  for (int x = 0; x < paddedData.size(); x += 2) {
+    plot << (x / 2) << " " << std::sqrt(std::pow(paddedData.at(x), 2) + pow(paddedData.at(x + 1), 2)) << std::endl;
+  }
+  plot.close();
+}
+
+/*
+  isForwardFFT = 1 for FFT and -1 for Inverse FFT
+*/
+void FFT (vector<float>& data, unsigned long number_of_complex_samples, int isForwardFFT) {
   //variables for trigonometric recurrences
   unsigned long n,mmax,m,j,istep,i;
   double wtemp,wr,wpr,wpi,wi,theta,tempr,tempi;
@@ -86,7 +99,7 @@ void FFT (vector<float>& data, unsigned long number_of_complex_samples, int isig
   //external loop
   while (n > mmax) {
     istep = mmax << 1;
-    theta = isign * (2 * PI / mmax);
+    theta = isForwardFFT * (2 * PI / mmax);
     wtemp = sin(0.5 * theta);
     wpr = -2.0 * wtemp * wtemp;
     wpi = sin(theta);
@@ -107,6 +120,11 @@ void FFT (vector<float>& data, unsigned long number_of_complex_samples, int isig
       wi = wi * wpr + wtemp * wpi + wi;
     }
     mmax = istep;
+  }
+  if (isForwardFFT == -1) {
+    for (int x = 0; x < n; ++x) {
+      data.at(x) /= number_of_complex_samples;
+    }
   }
 }
 
@@ -146,17 +164,33 @@ int main() {
   std::cout << "Size :: " << paddedData.size() << std::endl;
 
   // Adding imaginary components
-  std::cout << "added alternate imaginary values : " << paddedData.size();
+  std::cout << "added alternate imaginary values : " << paddedData.size() << endl;
   int paddedDataSize = paddedData.size() * 2;
   for (int x = 0; x < paddedDataSize; x += 2) {
     paddedData.insert(paddedData.begin() + x + 1, 0.0);
     // std::cout << x << std::endl;
   }
-  std::cout << "added alternate imaginary values : " << paddedData.size();
+  std::cout << "added alternate imaginary values : " << paddedData.size() << endl;
+
+  generatePlot("inputSignal.dat");
 
   FFT(paddedData, i, 1);
 
+  generatePlot("fftSignal.dat");
+
   for (int x = 0; x < paddedData.size(); ++x) {
+    cout << paddedData.at(x) << ", ";
+    if (x % 2 != 0) {
+      cout << endl;
+    }
+  }
+
+  FFT(paddedData, i, -1);
+
+  generatePlot("reverseFftSignal.dat");
+
+  std::cout << "Took inverse of the data : \n";
+    for (int x = 0; x < paddedData.size(); ++x) {
     cout << paddedData.at(x) << ", ";
     if (x % 2 != 0) {
       cout << endl;

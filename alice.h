@@ -1,3 +1,8 @@
+#ifndef ALICE_H
+#define ALICE_H
+
+#include <stdint.h>
+
 // int16_t rawData[] = {
 // 0,
 // 0,
@@ -46969,3 +46974,5 @@
 // 0,
 // 0,
 // 0};
+
+#endif

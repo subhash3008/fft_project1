@@ -1,3 +1,8 @@
+#ifndef ABCD_H
+#define ABCD_H
+
+#include <stdint.h>
+
 int16_t rawData[] = {
   1,
   1,
@@ -8,3 +13,5 @@ int16_t rawData[] = {
   0,
   0
 };
+
+#endif

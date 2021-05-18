@@ -6,10 +6,10 @@
       "command": "C:\\MinGW\\bin\\g++.exe",
       "args": [
         "-std=c++17",
-				"-g",
-				"${fileDirname}\\*.cpp",
-				// "${fileDirname}\\*.h",
-				"-o",
+        "-g",
+        "${fileDirname}\\*.cpp",
+        "${fileDirname}\\*.h",
+        "-o",
         "${fileDirname}\\${fileBasenameNoExtension}.exe"
       ],
       "options": {
