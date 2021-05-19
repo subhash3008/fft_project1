@@ -56,12 +56,47 @@ void generatePlot(const std::string& fileName) {
   plot.close();
 }
 
+float getMean() {
+  float mean = 0.0;
+  for (int x = 0; x < paddedData.size(); x += 2) {
+    mean += std::sqrt(std::pow(paddedData.at(x), 2) + std::pow(paddedData.at(x + 1), 2));
+  }
+  mean /= (paddedData.size() / 2);
+  std::cout << "Mean << " << mean << std::endl;
+  return mean;
+}
 
-// T(ν) = (1 − δ) exp−ν2/σ2 + δ
-// void applyTransmissionEqn() {
-//   for (int x = 0; x < )
+float getStandardDeviation(float mean) {
+  float deviation = 0.0;
+  for (int x = 0; x < paddedData.size(); x += 2) {
+    float val = std::sqrt(std::pow(paddedData.at(x), 2) + std::pow(paddedData.at(x + 1), 2));
+    deviation += std::pow((val - mean), 2);
+  }
+  deviation /= (paddedData.size() / 2);
+  deviation = std::sqrt(deviation);
+  std::cout << "DEVIATION << " << deviation << std::endl;
+  return deviation;
+}
 
-// }
+
+// T(ν) = (1 − δ) exp(−ν2/σ2) + δ
+void applyTransmissionEqn() {
+  std::ofstream tvPlot { "tvPlot.dat" };
+  float mean = getMean();
+  float sigma = getStandardDeviation(mean);
+  for (int x = 0; x < paddedData.size(); x += 2) {
+    float delta = .001;
+    float val = std::sqrt(std::pow(paddedData.at(x), 2) + std::pow(paddedData.at(x + 1), 2));
+    // std::cout << "xval : " << val << std::endl;
+    float nu = (val - mean);
+    float tv = (1 - delta) * std::exp(- (nu * nu) / (sigma * sigma)) + delta;
+    tvPlot << static_cast<int>(x/2) << " " << tv << std::endl; 
+    // std::cout << "Transmission Value : " << tv << std::endl;
+    paddedData.at(x) = paddedData.at(x) / tv;
+    paddedData.at(x + 1) = paddedData.at(x + 1) / tv;
+  }
+  tvPlot.close();
+}
 
 /*
   isForwardFFT = 1 for FFT and -1 for Inverse FFT
@@ -73,8 +108,6 @@ void FFT (vector<float>& data, unsigned long number_of_complex_samples, int isFo
   
   n = number_of_complex_samples * 2;
 
-  //binary inversion (note that the indexes
-  //start from 0 witch means that the
   //real part of the complex is on the even-indexes
   //and the complex part is on the odd-indexes
   j = 0;
@@ -135,6 +168,10 @@ int main() {
   cout << "Lines in the input file: " << i << '\n';
   printf("file size: %u\n", fsize);
 
+  ////////////////////////////////////////////////////////////////////
+  // DO YOUR PROCESSING HERE
+  ////////////////////////////////////////////////////////////////////
+
   // Pad the data with zeroes
   int nearestPowerOf2 = 1;
   long nearestPowerOf2Num = 1;
@@ -184,9 +221,7 @@ int main() {
   //   }
   // }
 
-  for (int x = 0; x < paddedData.size(); ++x) {
-    paddedData.at(x) = paddedData.at(x) > (.5 * std::pow(10, 6)) && paddedData.at(x) < (6 * std::pow(10, 6))  ? paddedData.at(x) : 0.0;
-  }
+  applyTransmissionEqn();
 
   generatePlot("modifiedFFT.dat");
 
@@ -211,16 +246,10 @@ int main() {
     ));
   }
 
-  std::cout << paddedData.size() << std::endl;
-
-  // for (int x = 0; x < paddedData.size() / 2; ++x) {
-  //   std::cout << x << " " << processedData[x] << std::endl;
-  // }
-
+  /////////////////////////
+  // PROCESSING ENDS     //
+  /////////////////////////
   // std::memcpy(processedData, rawData, FILE_SIZE);
-  ////////////////////////////////////////////////////////////////////
-  // DO YOUR PROCESSING HERE, ON "processedData"
-  ////////////////////////////////////////////////////////////////////
 
   // CONVERTS "processedData" TO AN AUDIO FILE
   std::cout << "Generating audio file\n.";
