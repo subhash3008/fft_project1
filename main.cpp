@@ -189,7 +189,6 @@ int main() {
   int paddedDataSize = paddedData.size() * 2;
   for (int x = 0; x < paddedDataSize; x += 2) {
     paddedData.insert(paddedData.begin() + x + 1, 0.0);
-    // std::cout << x << std::endl;
   }
   std::cout << "added alternate imaginary values : " << paddedData.size() << endl;
   
@@ -213,22 +212,11 @@ int main() {
     paddedData.push_back(0.0);
   }
 
-  // for (int x = 0; x < paddedData.size(); ++x) {
-  //   std::cout << "data : " << x << " " << paddedData.at(x) << std::endl;
-  // }
   std::cout << "Size :: " << paddedData.size() << std::endl;
-
 
   FFT(paddedData, i, 1);
 
   generatePlot("fftSignal.dat", true);
-
-  // for (int x = 0; x < paddedData.size(); ++x) {
-  //   cout << paddedData.at(x) << ", ";
-  //   if (x % 2 != 0) {
-  //     cout << endl;
-  //   }
-  // }
 
   applyTransmissionEqn();
 
