@@ -87,8 +87,9 @@ void applyTransmissionEqn() {
   std::ofstream tvPlot { "tvPlot.dat" };
   float mean = getMean();
   float sigma = getStandardDeviation(mean);
+  // float sigma = 9000;
   for (int x = 0; x < paddedData.size(); x += 2) {
-    float delta = .9;
+    float delta = .01;
     // float val = std::sqrt(std::pow(paddedData.at(x), 2) + std::pow(paddedData.at(x + 1), 2));
     // std::cout << "xval : " << val << std::endl;
     // float nu = (val - mean);
@@ -177,31 +178,10 @@ int main() {
   // DO YOUR PROCESSING HERE
   ////////////////////////////////////////////////////////////////////
 
-  // Pad the data with zeroes
-  int nearestPowerOf2 = 1;
-  long nearestPowerOf2Num = 1;
-  while (nearestPowerOf2Num < i) {
-    nearestPowerOf2Num = nearestPowerOf2Num << 1;
-    ++nearestPowerOf2;
-  }
-
-  std::cout << nearestPowerOf2 << " " << nearestPowerOf2Num << std::endl;
-
   // copy data into vector
   for (int x = 0; x < i; ++x) {
     paddedData.push_back(static_cast<float>(rawData[x]));
   }
-  std::cout << "Size :: " << paddedData.size() << std::endl;
-
-  std::cout << (nearestPowerOf2Num - i) << std::endl;
-
-  for (int x = 0; x < (nearestPowerOf2Num - i); ++x) {
-    paddedData.push_back(0.0);
-  }
-
-  // for (int x = 0; x < paddedData.size(); ++x) {
-  //   std::cout << "data : " << x << " " << paddedData.at(x) << std::endl;
-  // }
   std::cout << "Size :: " << paddedData.size() << std::endl;
 
   // Adding imaginary components
@@ -212,8 +192,32 @@ int main() {
     // std::cout << x << std::endl;
   }
   std::cout << "added alternate imaginary values : " << paddedData.size() << endl;
-
+  
   generatePlot("inputSignal.dat");
+
+  // Pad the data with zeroes
+  int nearestPowerOf2 = 1;
+  long nearestPowerOf2Num = 1;
+  while (nearestPowerOf2Num < paddedData.size()) {
+    nearestPowerOf2Num = nearestPowerOf2Num << 1;
+    ++nearestPowerOf2;
+  }
+
+  std::cout << nearestPowerOf2 << " " << nearestPowerOf2Num << std::endl;
+
+  int toBeFilled = nearestPowerOf2Num - paddedData.size();
+  
+  std::cout << "To be filled places :: " << toBeFilled << std::endl;
+
+  for (int x = 0; x < toBeFilled; ++x) {
+    paddedData.push_back(0.0);
+  }
+
+  // for (int x = 0; x < paddedData.size(); ++x) {
+  //   std::cout << "data : " << x << " " << paddedData.at(x) << std::endl;
+  // }
+  std::cout << "Size :: " << paddedData.size() << std::endl;
+
 
   FFT(paddedData, i, 1);
 
@@ -232,15 +236,15 @@ int main() {
 
   FFT(paddedData, i, -1);
 
-  generatePlot("reverseFftSignal.dat");
+  std::cout << "Took inverse of the data. Erasing padded elements. \n";
 
-  std::cout << "Took inverse of the data : \n";
-  // for (int x = 0; x < paddedData.size(); ++x) {
-  //   cout << paddedData.at(x) << ", ";
-  //   if (x % 2 != 0) {
-  //     cout << endl;
-  //   }
-  // }
+  std::cout << i * 2 << "  " << paddedData.size() << std::endl;
+  // Erase padded 0 elements
+  paddedData.erase(paddedData.begin() + i * 2, paddedData.begin() + paddedData.size());
+
+  std::cout << "SIZE : " << paddedData.size() << std::endl;
+
+  generatePlot("reverseFftSignal.dat");
 
   int16_t processedData[FILE_SIZE];
   // Populating processedData
