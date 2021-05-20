@@ -39,7 +39,7 @@ typedef struct WAV_HEADER
 // Global Variables
 std::vector<float> paddedData;
 
-const double PI = 2*acos(0.0);
+const double PI = 2 * acos(0.0);
 
 void swap (vector<float>& data, unsigned long first, unsigned long second) {
   double temp = data.at(first);
@@ -48,10 +48,13 @@ void swap (vector<float>& data, unsigned long first, unsigned long second) {
 }
 
 // Generate dat file for gnu plot
-void generatePlot(const std::string& fileName) {
+void generatePlot(const std::string& fileName, bool isComplexPlot = false) {
   std::ofstream plot { fileName };
   for (int x = 0; x < paddedData.size(); x += 2) {
-    plot << (x / 2) << " " << std::sqrt(std::pow(paddedData.at(x), 2) + pow(paddedData.at(x + 1), 2)) << std::endl;
+    float val = !isComplexPlot ?
+      paddedData.at(x) :
+      std::sqrt(std::pow(paddedData.at(x), 2) + std::pow(paddedData.at(x + 1), 2));
+    plot << (x / 2) << " " << val << std::endl;
   }
   plot.close();
 }
@@ -59,7 +62,7 @@ void generatePlot(const std::string& fileName) {
 float getMean() {
   float mean = 0.0;
   for (int x = 0; x < paddedData.size(); x += 2) {
-    mean += std::sqrt(std::pow(paddedData.at(x), 2) + std::pow(paddedData.at(x + 1), 2));
+    mean += (x / 2);
   }
   mean /= (paddedData.size() / 2);
   std::cout << "Mean << " << mean << std::endl;
@@ -69,8 +72,8 @@ float getMean() {
 float getStandardDeviation(float mean) {
   float deviation = 0.0;
   for (int x = 0; x < paddedData.size(); x += 2) {
-    float val = std::sqrt(std::pow(paddedData.at(x), 2) + std::pow(paddedData.at(x + 1), 2));
-    deviation += std::pow((val - mean), 2);
+    // float val = std::sqrt(std::pow(paddedData.at(x), 2) + std::pow(paddedData.at(x + 1), 2));
+    deviation += std::pow(((x / 2) - mean), 2);
   }
   deviation /= (paddedData.size() / 2);
   deviation = std::sqrt(deviation);
@@ -85,11 +88,13 @@ void applyTransmissionEqn() {
   float mean = getMean();
   float sigma = getStandardDeviation(mean);
   for (int x = 0; x < paddedData.size(); x += 2) {
-    float delta = .001;
-    float val = std::sqrt(std::pow(paddedData.at(x), 2) + std::pow(paddedData.at(x + 1), 2));
+    float delta = .9;
+    // float val = std::sqrt(std::pow(paddedData.at(x), 2) + std::pow(paddedData.at(x + 1), 2));
     // std::cout << "xval : " << val << std::endl;
-    float nu = (val - mean);
-    float tv = (1 - delta) * std::exp(- (nu * nu) / (sigma * sigma)) + delta;
+    // float nu = (val - mean);
+    float nu = (x / 2) - mean;
+    // float tv = (1 - delta) * (1 / (sigma * std::sqrt(2 * PI))) * std::exp(- (nu * nu) / (sigma * sigma)) + delta;
+    float tv = ((1 - delta) * std::exp(- (nu * nu) / (sigma * sigma))) + delta;
     tvPlot << static_cast<int>(x/2) << " " << tv << std::endl; 
     // std::cout << "Transmission Value : " << tv << std::endl;
     paddedData.at(x) = paddedData.at(x) / tv;
@@ -212,7 +217,7 @@ int main() {
 
   FFT(paddedData, i, 1);
 
-  generatePlot("fftSignal.dat");
+  generatePlot("fftSignal.dat", true);
 
   // for (int x = 0; x < paddedData.size(); ++x) {
   //   cout << paddedData.at(x) << ", ";
@@ -223,7 +228,7 @@ int main() {
 
   applyTransmissionEqn();
 
-  generatePlot("modifiedFFT.dat");
+  generatePlot("modifiedFFT.dat", true);
 
   FFT(paddedData, i, -1);
 
@@ -240,10 +245,11 @@ int main() {
   int16_t processedData[FILE_SIZE];
   // Populating processedData
   for (int x = 0; x < paddedData.size(); x += 2) {
-    processedData[x / 2] = static_cast<int16_t>(std::sqrt(
-      std::pow(paddedData.at(x), 2) +
-      std::pow(paddedData.at(x + 1), 2)
-    ));
+    // processedData[x / 2] = static_cast<int16_t>(std::sqrt(
+    //   std::pow(paddedData.at(x), 2) +
+    //   std::pow(paddedData.at(x + 1), 2)
+    // ));
+    processedData[x / 2] = static_cast<int16_t>(paddedData.at(x));
   }
 
   /////////////////////////
