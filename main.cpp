@@ -247,6 +247,7 @@ int main() {
   /////////////////////////
   // PROCESSING ENDS     //
   /////////////////////////
+  // int16_t processedData[FILE_SIZE];
   // std::memcpy(processedData, rawData, FILE_SIZE);
 
   // CONVERTS "processedData" TO AN AUDIO FILE
