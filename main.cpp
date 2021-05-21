@@ -85,19 +85,19 @@ float getStandardDeviation(float mean) {
 // T(ν) = (1 − δ) exp(−ν2/σ2) + δ
 void applyTransmissionEqn() {
   std::ofstream tvPlot { "tvPlot.dat" };
-  float mean = getMean();
-  float sigma = getStandardDeviation(mean);
-  // float sigma = 9000;
-  for (int x = 0; x < paddedData.size(); x += 2) {
-    float delta = .01;
-    // float val = std::sqrt(std::pow(paddedData.at(x), 2) + std::pow(paddedData.at(x + 1), 2));
-    // std::cout << "xval : " << val << std::endl;
-    // float nu = (val - mean);
-    float nu = (x / 2) - mean;
-    // float tv = (1 - delta) * (1 / (sigma * std::sqrt(2 * PI))) * std::exp(- (nu * nu) / (sigma * sigma)) + delta;
-    float tv = ((1 - delta) * std::exp(- (nu * nu) / (sigma * sigma))) + delta;
-    tvPlot << static_cast<int>(x/2) << " " << tv << std::endl; 
-    // std::cout << "Transmission Value : " << tv << std::endl;
+  // float mean = getMean();
+  // float sigma = getStandardDeviation(mean);
+  float sigma = 1010;
+  float delta = .0001;
+  long paddedSize = paddedData.size();
+  for (int x = 0; x < paddedSize; x += 2) {
+    float nu1 = (x / 2);
+    float nu2 = (x / 2) - (paddedSize / 2);
+    float tv = ((1 - delta) * (
+      std::exp(- std::pow(nu1, 2) / std::pow(sigma, 2)) +
+      std::exp(- std::pow(nu2, 2) / std::pow(sigma, 2))
+    )) + delta;
+    tvPlot << static_cast<int>(x/2) << " " << tv << std::endl;
     paddedData.at(x) = paddedData.at(x) / tv;
     paddedData.at(x + 1) = paddedData.at(x + 1) / tv;
   }
@@ -182,15 +182,14 @@ int main() {
   for (int x = 0; x < i; ++x) {
     paddedData.push_back(static_cast<float>(rawData[x]));
   }
-  std::cout << "Size :: " << paddedData.size() << std::endl;
+  std::cout << "Initial Size :: " << paddedData.size() << std::endl;
 
   // Adding imaginary components
-  std::cout << "added alternate imaginary values : " << paddedData.size() << endl;
   int paddedDataSize = paddedData.size() * 2;
   for (int x = 0; x < paddedDataSize; x += 2) {
     paddedData.insert(paddedData.begin() + x + 1, 0.0);
   }
-  std::cout << "added alternate imaginary values : " << paddedData.size() << endl;
+  std::cout << "Added alternate imaginary values : " << paddedData.size() << endl;
   
   generatePlot("inputSignal.dat");
 
@@ -212,9 +211,9 @@ int main() {
     paddedData.push_back(0.0);
   }
 
-  std::cout << "Size :: " << paddedData.size() << std::endl;
+  std::cout << "Size after padding with 0 :: " << paddedData.size() << std::endl;
 
-  FFT(paddedData, i, 1);
+  FFT(paddedData, paddedData.size() / 2 , 1);
 
   generatePlot("fftSignal.dat", true);
 
@@ -222,15 +221,15 @@ int main() {
 
   generatePlot("modifiedFFT.dat", true);
 
-  FFT(paddedData, i, -1);
+  FFT(paddedData, paddedData.size() / 2, -1);
 
   std::cout << "Took inverse of the data. Erasing padded elements. \n";
 
-  std::cout << i * 2 << "  " << paddedData.size() << std::endl;
+  std::cout << "Original size with imaginary : " << i * 2 << "\nPadded size with imaginary : " << paddedData.size() << std::endl;
   // Erase padded 0 elements
   paddedData.erase(paddedData.begin() + i * 2, paddedData.begin() + paddedData.size());
 
-  std::cout << "SIZE : " << paddedData.size() << std::endl;
+  std::cout << "FINAL SIZE : " << paddedData.size() << std::endl;
 
   generatePlot("reverseFftSignal.dat");
 
