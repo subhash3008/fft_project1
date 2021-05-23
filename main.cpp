@@ -2,7 +2,7 @@
 // and saves it as "alice.wav".
 
 #include "alice.h"
-// #include "abcd.h"
+// #include "test_eight_bit.h"
 #include "fft_utils.h"
 #include "fft_test.h"
 
