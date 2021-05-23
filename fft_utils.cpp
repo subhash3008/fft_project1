@@ -38,6 +38,20 @@ void padZeroTillPowerOfTwo(std::vector<float>& data) {
   std::cout << "Size after padding with 0 :: " << data.size() << std::endl;
 }
 
+
+// Generate dat file for gnu plot
+void generatePlot(std::vector<float>& data, const std::string& fileName, bool isComplexPlot) {
+  std::ofstream plot { fileName };
+  for (int x = 0; x < data.size(); x += 2) {
+    float val = !isComplexPlot ?
+      data.at(x) :
+      std::sqrt(std::pow(data.at(x), 2) + std::pow(data.at(x + 1), 2));
+    plot << (x / 2) << " " << val << std::endl;
+  }
+  plot.close();
+}
+
+
 void erasePaddedZeroes(std::vector<float>& data, int originalSize) {
   std::cout << "Erasing the padded Zeroes." << std::endl;
   std::cout << "Original size with imaginary : " << originalSize * 2 << std::endl;
@@ -65,18 +79,6 @@ void applyTransmissionEqn(std::vector<float>& data) {
     data.at(x + 1) = data.at(x + 1) / tv;
   }
   tvPlot.close();
-}
-
-// Generate dat file for gnu plot
-void generatePlot(std::vector<float>& data, const std::string& fileName, bool isComplexPlot) {
-  std::ofstream plot { fileName };
-  for (int x = 0; x < data.size(); x += 2) {
-    float val = !isComplexPlot ?
-      data.at(x) :
-      std::sqrt(std::pow(data.at(x), 2) + std::pow(data.at(x + 1), 2));
-    plot << (x / 2) << " " << val << std::endl;
-  }
-  plot.close();
 }
 
 /*
