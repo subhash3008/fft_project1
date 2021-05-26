@@ -25,3 +25,27 @@ transform it back to the time space.
 6> Use the provided code, or an alternative, to convert your data to an audio signal. What
 was the sentence spoken by Alice?
 
+## File Details
+* alice.h: contains input data for audio signal
+* alice input.wav: input audio file
+* main.cpp: contains logic to create audio file from given data and main calling function for processing the data to generate the same
+* fft_utils: header and cpp file for processing of the given data (also includes code to generate plot file)
+* fft_test: header and cpp file for task 2 (generating a sine wave and testing fft logic)
+* test_eight_bit.h: input 8 bit data to test the fft code
+* alice.wav : Output audio file
+
+On running the main.exe after compiling with below command(Please update project location on local system), many *.dat files would be generated in the format for 2d plotting. Any plotting tool can be used to plot the same (We have used gnuplot for this purpose.)
+```
+C:\MinGW\bin\g++.exe -std=c++17 -g C:\Users\lenovo\Desktop\audio_denoise\*.cpp C:\Users\lenovo\Desktop\audio_denoise\*.h -o C:\Users\lenovo\Desktop\audio_denoise\main.exe
+```
+
+## Images
+* audio-denoise.png: flow chart for the evesdropping code
+* input.png: Plot for input audio signal on time scale
+* fft.png: Frequency domain plot for given audio signal after taking fourier transform
+* tvfunction.png: Transmission function plot
+* final-fft.png: FFT plot after applying the transmission function i.e. FFT / T(v)
+* ifft.png: Denoised audio signal plot after taking inverse fft
+* sineInput.png: Task 2 signal generated using code in fft_test.cpp
+* sineFft.png: Frequency plot after taking the fft of automatically generated sine wave
+* sineIfft.png: Plot after taking inverse fft of the generate signal
