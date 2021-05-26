@@ -63,9 +63,17 @@ int main() {
 
   padZeroTillPowerOfTwo(paddedData);
 
+  // std::cout << "Logging input data : " << std::endl;
+  // logData(paddedData);
+  // std::cout << "*******************************" << std::endl;
+
   FFT(paddedData, paddedData.size() / 2 , 1);
 
   generatePlot(paddedData, "fftSignal.dat", true);
+
+  // std::cout << "Logging output data : " << std::endl;
+  // logData(paddedData);
+  // std::cout << "*******************************" << std::endl;
 
   applyTransmissionEqn(paddedData);
 

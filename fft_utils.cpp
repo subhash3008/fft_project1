@@ -142,3 +142,9 @@ void FFT (std::vector<float>& data, unsigned long number_of_complex_samples, int
     }
   }
 }
+
+void logData(std::vector<float>& data) {
+  for (int x = 0; x < data.size(); x += 2) {
+    std::cout << data.at(x) << " + " << data.at(x + 1) << "i" << std::endl; 
+  }
+}
